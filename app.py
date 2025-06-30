@@ -6,16 +6,16 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 st.set_page_config(page_title="Find Your Sport", layout="centered")
 
-# Title
+# العنوان والواجهة
 st.markdown("""
 <h1 style='text-align: center; color: #3F8CFF;'>🏅 Find Your Sport</h1>
-<p style='text-align: center;'>Answer the following questions to get your personalized sport recommendation.</p>
+<p style='text-align: center;'>Answer the questions to get a sport tailored to your personality.</p>
 """, unsafe_allow_html=True)
 
-# Language selection
+# اختيار اللغة
 language = st.radio("🌐 Choose your language / اختر لغتك:", ["English", "العربية"])
 
-# Load data
+# تحميل البيانات
 @st.cache_data
 def load_data():
     return pd.read_excel("Formatted_Sport_Identity_Data-2.xlsx")
@@ -25,6 +25,7 @@ df["Combined_Answers"] = df[[f"Q{i}" for i in range(1, 21)]].astype(str).agg(' '
 vectorizer = CountVectorizer().fit_transform(df["Combined_Answers"])
 similarity_matrix = cosine_similarity(vectorizer)
 
+# دالة التوصية
 def recommend_sport(new_answers):
     input_str = " ".join(new_answers)
     input_vec = CountVectorizer().fit(df["Combined_Answers"]).transform([input_str])
@@ -40,51 +41,51 @@ def recommend_sport(new_answers):
         "Tools_Needed": result["Tools_Needed"]
     }
 
-# Questions
+# نسخة مبسطة من الأسئلة
 questions = {
     "English": [
-        "1. What's something that makes you feel strong without praise?",
-        "2. What activity makes you forget everything else?",
-        "3. Do you like being known? Or mysterious but respected?",
-        "4. If facing a rival, would you dominate? Outsmart? Ignore?",
-        "5. What proves you're the strongest?",
-        "6. What's a powerful scene burned into your memory?",
-        "7. Is there something you're obsessed with and wish it were a sport?",
-        "8. Do you prefer impressive gear or raw movement?",
-        "9. If alone in a fantasy world, what weapon or power would you have?",
-        "10. What do you do that others would copy and admire?",
-        "11. Preferred environment? Open, closed, dark, natural, urban, effects?",
-        "12. Pick your archetype: Tactical Player / Shadow Driver / Ninja Warrior / Lone King / Clever Villain / Silent Killer",
-        "13. What makes you feel respected the most?",
-        "14. If you travel abroad, what would change inside you?",
-        "15. Do you like fame or hate being in the spotlight?",
-        "16. How do you usually react when challenged?",
-        "17. Share a moment where everyone gave up and you didn’t.",
-        "18. What's a dark thought or event that shaped you?",
-        "19. Describe your dream life with vehicles and tools.",
-        "20. Is there anyone you admire or wish to become like?"
+        "1. Do you prefer to be alone or with people?",
+        "2. What makes you feel focused for a long time?",
+        "3. Do you like being the center of attention?",
+        "4. How do you react when someone challenges you?",
+        "5. What motivates you most? Winning, fun, or improving?",
+        "6. Do you like danger or prefer to stay safe?",
+        "7. What type of place makes you feel good? (nature, city, closed room...etc)",
+        "8. Do you love tools and gear or simple action?",
+        "9. If you had a power, what would it be?",
+        "10. What kind of game or activity makes you forget time?",
+        "11. Do you like competing with others or with yourself?",
+        "12. What's more important: strength, speed, or strategy?",
+        "13. Do you enjoy solving problems?",
+        "14. What do you usually watch on TikTok or YouTube?",
+        "15. Would you rather lead a team or act alone?",
+        "16. Do you enjoy exploring new places?",
+        "17. How do you feel about high places or speed?",
+        "18. What kind of challenge makes you excited?",
+        "19. Do you enjoy planning or prefer reacting fast?",
+        "20. Do you admire athletes, gamers, or adventurers more?"
     ],
     "العربية": [
-        "1. وش الشي اللي يحسسك إنك قوي بدون ما أحد يمدحك؟",
-        "2. وش الشي اللي يخليك تنسى العالم كله حولك؟",
-        "3. تحب تكون معروف؟ ولا غامض بس يهابونك؟",
-        "4. لو قدامك خصم: تسيطر؟ تتفوق عليه؟ تتجاهله؟",
-        "5. وش يثبت إنك الأقوى؟",
-        "6. وش أقوى مشهد شفته وعلق في ذاكرتك؟",
-        "7. هل في شي مهووس فيه وتتمنى لو له رياضة؟",
-        "8. تحب اللبس والأدوات؟ ولا تهمك الحركات؟",
-        "9. لو كنت وحيد في عالم خيالي، وش القوة أو السلاح اللي معك؟",
-        "10. وش تسوي وتتخيل ناس يقلدونك فيه؟",
-        "11. تحب تكون في مكان: مفتوح، مغلق، مظلم، طبيعي، مدني؟",
-        "12. اختر وصفك: لاعب تكتيكي / سائق شبح / نينجا / ملك بلا عرش / شرير ذكي / هادئ وقاتل",
-        "13. متى تحس باحترام الناس لك؟",
-        "14. لو سافرت للخارج، وش الشي اللي راح يتغير فيك؟",
-        "15. تحب الشهرة؟ ولا تكره الأضواء؟",
-        "16. كيف تتصرف إذا أحد تحداك؟",
-        "17. متى استسلم الكل وبقيت أنت؟",
-        "18. وش فكرة سوداوية أو لحظة غيرتك؟",
-        "19. وصف حياتك الحلم مع السيارات والأدوات؟",
-        "20. هل في شخص تتمناه أو تبي تصير مثله؟"
+        "1. تحب تكون لحالك أو مع ناس؟",
+        "2. وش الشي اللي يخليك تركز لفترة طويلة؟",
+        "3. تحب تكون محط الأنظار؟",
+        "4. وش تسوي إذا أحد تحداك؟",
+        "5. وش أكثر شي يحفزك؟ الفوز، المتعة، أو التطور؟",
+        "6. تحب الأشياء الخطيرة أو تفضل الأمان؟",
+        "7. وش نوع المكان اللي يريحك؟ (طبيعة، مدينة، غرفة...الخ)",
+        "8. تحب الأدوات والملابس أو الحركات البسيطة؟",
+        "9. لو عندك قوة خارقة، وش بتكون؟",
+        "10. وش الشي اللي يخليك تنسى الوقت إذا سويته؟",
+        "11. تحب تتنافس مع غيرك أو مع نفسك؟",
+        "12. الأهم عندك: القوة، السرعة، أو الذكاء؟",
+        "13. تستمتع بحل المشاكل؟",
+        "14. غالباً وش تشوف على تيك توك أو يوتيوب؟",
+        "15. تحب تقود الفريق أو تشتغل لحالك؟",
+        "16. تحب تستكشف أماكن جديدة؟",
+        "17. وش شعورك تجاه المرتفعات أو السرعة؟",
+        "18. وش نوع التحدي اللي يخليك تتحمس؟",
+        "19. تحب تخطط ولا تشتغل بسرعة؟",
+        "20. تعجبك الرياضيين، ولا اللاعبين، ولا المغامرين أكثر؟"
     ]
 }
 
@@ -93,10 +94,13 @@ user_answers = []
 for q in questions[language]:
     user_answers.append(st.text_input(q))
 
-# Recommendation Button
+# زر التوصية
 if st.button("🎯 Get Recommendation / احصل على الرياضة الأنسب"):
     if all(user_answers):
-        translated_answers = [GoogleTranslator(source='auto', target='en').translate(ans) for ans in user_answers]
+        if language == "العربية":
+            translated_answers = [GoogleTranslator(source='auto', target='en').translate(ans) for ans in user_answers]
+        else:
+            translated_answers = user_answers
         result = recommend_sport(translated_answers)
         st.success("✅ Recommendation Ready / التوصية جاهزة!")
         for k, v in result.items():
