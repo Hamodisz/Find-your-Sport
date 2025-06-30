@@ -1,20 +1,21 @@
 import streamlit as st
+from deep_translator import GoogleTranslator
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 
 st.set_page_config(page_title="Find Your Sport", layout="centered")
 
-# واجهة العنوان
+# Title
 st.markdown("""
 <h1 style='text-align: center; color: #3F8CFF;'>🏅 Find Your Sport</h1>
 <p style='text-align: center;'>Answer the following questions to get your personalized sport recommendation.</p>
 """, unsafe_allow_html=True)
 
-# اختيار اللغة
+# Language selection
 language = st.radio("🌐 Choose your language / اختر لغتك:", ["English", "العربية"])
 
-# تحميل البيانات
+# Load data
 @st.cache_data
 def load_data():
     return pd.read_excel("Formatted_Sport_Identity_Data-2.xlsx")
@@ -39,7 +40,7 @@ def recommend_sport(new_answers):
         "Tools_Needed": result["Tools_Needed"]
     }
 
-# الأسئلة حسب اللغة
+# Questions
 questions = {
     "English": [
         "1. What's something that makes you feel strong without praise?",
@@ -92,10 +93,11 @@ user_answers = []
 for q in questions[language]:
     user_answers.append(st.text_input(q))
 
-# زر التوصية
+# Recommendation Button
 if st.button("🎯 Get Recommendation / احصل على الرياضة الأنسب"):
     if all(user_answers):
-        result = recommend_sport(user_answers)
+        translated_answers = [GoogleTranslator(source='auto', target='en').translate(ans) for ans in user_answers]
+        result = recommend_sport(translated_answers)
         st.success("✅ Recommendation Ready / التوصية جاهزة!")
         for k, v in result.items():
             st.markdown(f"**{k.replace('_', ' ')}**: {v}")
