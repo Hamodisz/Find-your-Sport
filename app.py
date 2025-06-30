@@ -3,25 +3,31 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 
-# Title
-st.title("🏅 Find Your Sport")
-st.write("Answer the following questions to get your personalized sport recommendation.")
+# واجهة البداية
+st.markdown("""
+<h1 style='text-align: center; color: #3F8CFF;'>🏁 Find Your Sport</h1>
+<p style='text-align: center;'>Answer 20 powerful questions to discover your unique sport identity</p>
+""", unsafe_allow_html=True)
 
-# Load data
+start = st.button("🎯 Start Now")
+
+if not start:
+    st.stop()
+
+# تحميل البيانات
 @st.cache_data
 def load_data():
-    df = pd.read_excel("Formatted_Sport_Identity_Data-2.xlsx")
-    df["Combined_Answers"] = df[[f"Q{i}" for i in range(1, 21)]].astype(str).agg(' '.join, axis=1)
-    return df
+    return pd.read_excel("Formatted_Sport_Identity_Data-2.xlsx")
 
 df = load_data()
+df["Combined_Answers"] = df[[f"Q{i}" for i in range(1, 21)]].astype(str).agg(' '.join, axis=1)
+vectorizer = CountVectorizer().fit_transform(df["Combined_Answers"])
+similarity_matrix = cosine_similarity(vectorizer)
 
-# Recommendation function
 def recommend_sport(new_answers):
     input_str = " ".join(new_answers)
     input_vec = CountVectorizer().fit(df["Combined_Answers"]).transform([input_str])
-    base_vecs = CountVectorizer().fit_transform(df["Combined_Answers"])
-    similarities = cosine_similarity(input_vec, base_vecs).flatten()
+    similarities = cosine_similarity(input_vec, vectorizer).flatten()
     best_match_idx = similarities.argmax()
     result = df.iloc[best_match_idx]
     return {
@@ -33,40 +39,39 @@ def recommend_sport(new_answers):
         "Tools_Needed": result["Tools_Needed"]
     }
 
-# User input form
-questions = [
-    ("وش الشي اللي تحسسك إنك قوي بس بدون ما أحد يمدحك؟", "What makes you feel powerful without needing praise?"),
-    ("لو في شي يخليك تنسى كل شي حولك… وش يكون؟", "What’s something that makes you forget everything around you?"),
-    ("تحب تكون معروف؟ ولا تحب تكون غامض بس يهابونك؟", "Do you prefer being famous or mysterious and respected?"),
-    ("تحب إذا صار فيه خصم قدامك… تضربه بقوة؟ تتفوق عليه بحركة؟ تسيطر على الموقف؟ تتجاهله كأنه ما يستاهل؟", "When facing a rival, do you attack, outsmart, dominate, or ignore?"),
-    ("لو دخلت منافسة… وش أهم شي يثبت إنك الأقوى؟", "What proves you're the strongest in a competition?"),
-    ("وش أقوى مشهد شفته في حياتك وعلّق براسك؟", "What’s the most powerful scene you’ve ever seen?"),
-    ("هل فيه شي تعشقه أو مهووس فيه، وتتمنى لو كان له رياضة؟", "Is there something you're obsessed with that you wish was a sport?"),
-    ("تحب الأشياء اللي فيها هيبة ولبس وأدوات؟ ولا تهمك الحركة نفسها؟", "Do you like gear, uniforms and style or just the movement itself?"),
-    ("لو كنت وحيد في عالم خيالي… وش نوع السلاح أو القوة اللي تكون معك؟", "In a fantasy world, what weapon or power would you have?"),
-    ("وش الشي اللي تسويه وتتخيل لو فيه ناس يقلدونك ويقولون: “أوه هذا أسطوري”؟", "What do you do that you wish others would admire or imitate?"),
-    ("تحب تكون في مكان مفتوح؟ مغلق؟ مظلم؟ طبيعي؟ مدني؟ كله مؤثرات؟", "Do you prefer open, closed, dark, natural, urban, or cinematic spaces?"),
-    ("وش أقرب وصف لك؟", "Which description fits you best?"),
-    ("وش الشي اللي تحس بالهيبة لما تسويه لحد؟", "What makes you feel noble or heroic when you do it for someone?"),
-    ("لو سافرت، تتوقع تنسى اللي حولك؟", "If you travel, do you feel like you'd forget your surroundings?"),
-    ("هل تحب الشهرة؟ أو الغموض والقوة بدون معرفة؟", "Do you like fame, or prefer to be powerful but unknown?"),
-    ("لو واجهك خصم حقيقي، تتجاهله؟ تتفوق عليه؟ تضربه؟", "When facing a real enemy, do you ignore, outsmart, or attack?"),
-    ("هل فيه لحظة معينة كل الناس تركوك فيها؟", "Was there a moment everyone left you?"),
-    ("وش أكثر لحظة واقعية ما تنساها؟", "What’s a real moment you’ll never forget?"),
-    ("لو خيروك تملك أي شي في العالم، وش تختار؟", "If you could own anything in the world, what would it be?"),
-    ("هل فيه شي فيك تتمنى الناس يقلدونه؟", "Is there something about you that you'd like others to imitate?")
-]
+# الأسئلة
+st.header("🧠 Your Sport Identity Questions")
 
-answers = []
-for i, (ar, en) in enumerate(questions, 1):
-    ans = st.text_input(f"Q{i}. {ar}\n*{en}*", "")
-    answers.append(ans)
+q1 = st.text_input("1. What's something that makes you feel strong without praise?")
+q2 = st.text_input("2. What activity makes you forget everything else?")
+q3 = st.text_input("3. Do you like being known? Or mysterious but respected?")
+q4 = st.text_input("4. If facing a rival, would you dominate? Outsmart? Ignore?")
+q5 = st.text_input("5. What proves you're the strongest?")
+q6 = st.text_input("6. What's a powerful scene burned into your memory?")
+q7 = st.text_input("7. Is there something you're obsessed with and wish it were a sport?")
+q8 = st.text_input("8. Do you prefer impressive gear or raw movement?")
+q9 = st.text_input("9. If alone in a fantasy world, what weapon or power would you have?")
+q10 = st.text_input("10. What do you do that others would copy and admire?")
+q11 = st.text_input("11. Preferred environment? Open, closed, dark, natural, urban, effects?")
+q12 = st.text_input("12. Pick your archetype: Tactical Player / Shadow Driver / Ninja Warrior / Lone King / Clever Villain / Silent Killer")
+q13 = st.text_input("13. What makes you feel respected the most?")
+q14 = st.text_input("14. If you travel abroad, what would change inside you?")
+q15 = st.text_input("15. Do you like fame or hate being in the spotlight?")
+q16 = st.text_input("16. How do you usually react when challenged?")
+q17 = st.text_input("17. Share a moment where everyone gave up and you didn’t.")
+q18 = st.text_input("18. What's a dark thought or event that shaped you?")
+q19 = st.text_input("19. Describe your dream life with vehicles and tools.")
+q20 = st.text_input("20. Is there anyone you admire or wish to become like?")
 
-if st.button("🔍 Find My Sport"):
+answers = [q1, q2, q3, q4, q5, q6, q7, q8, q9, q10,
+           q11, q12, q13, q14, q15, q16, q17, q18, q19, q20]
+
+# زر النتيجة
+if st.button("🚀 Get My Sport Recommendation"):
     if all(answers):
         result = recommend_sport(answers)
-        st.subheader("🎯 Your Recommended Sport:")
-        for key, value in result.items():
-            st.write(f"**{key}**: {value}")
+        st.success("🎯 Your personalized sport has been found!")
+        for k, v in result.items():
+            st.markdown(f"**{k.replace('_', ' ')}**: {v}")
     else:
-        st.warning("Please fill in all 20 answers.")
+        st.warning("Please answer all questions before getting your sport.")
