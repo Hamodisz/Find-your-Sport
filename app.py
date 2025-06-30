@@ -1,62 +1,52 @@
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import CountVectorizer
 
-import streamlit as st
+data = [
+    {
+        "Combined_Answers": "Observes quietly Avoids showing off Mental challenge Expresses with motion Prefers silence Tactical Ghost Phantom Rush A fast-paced decision sport where dominance is subtle and skill-based. VR room Training sword",
+        "Personality_Archetype": "Tactical Ghost",
+        "Identity_Archetype": "The Phantom",
+        "Recommended_Sport_Name": "Phantom Rush",
+        "Sport_Description": "A fast-paced decision sport where dominance is subtle and skill-based.",
+        "Environment": "VR room",
+        "Tools_Needed": "Training sword"
+    },
+    {
+        "Combined_Answers": "Avoids showing off Mental challenge Observes quietly Shadow Strategist Phantom Rush A fast-paced decision sport where dominance is subtle and skill-based. Dark indoor arena Sound sensor",
+        "Personality_Archetype": "Shadow Strategist",
+        "Identity_Archetype": "The Phantom",
+        "Recommended_Sport_Name": "Phantom Rush",
+        "Sport_Description": "A fast-paced decision sport where dominance is subtle and skill-based.",
+        "Environment": "Dark indoor arena",
+        "Tools_Needed": "Sound sensor"
+    },
+    {
+        "Combined_Answers": "Observes quietly Avoids showing off Tactical Ghost Urban Arena Tactical competition with indirect interaction and positioning. Dark indoor arena VR headset",
+        "Personality_Archetype": "Tactical Ghost",
+        "Identity_Archetype": "The Observer",
+        "Recommended_Sport_Name": "Urban Arena",
+        "Sport_Description": "Tactical competition with indirect interaction and positioning.",
+        "Environment": "Dark indoor arena",
+        "Tools_Needed": "VR headset"
+    }
+]
 
-# ----------------------------
-# Language Selection
-# ----------------------------
-lang = st.sidebar.selectbox("Select Language / اختر اللغة", ["English", "العربية"])
+df = pd.DataFrame(data)
+vectorizer = CountVectorizer().fit(df["Combined_Answers"])
+vectors = vectorizer.transform(df["Combined_Answers"])
 
-# ----------------------------
-# Questions in Both Languages
-# ----------------------------
-questions = {
-    "English": [
-        "What makes you feel strong without anyone praising you?",
-        "What pulls you into a flow state easily?",
-        "Do you prefer to be known or mysterious but respected?",
-        "If facing an opponent, do you strike, outsmart, control, or ignore?",
-        "In competition, what proves you're the strongest?",
-        "What’s the most powerful scene you remember?",
-        "Is there something you love deeply and wish had its own sport?",
-        "Do you prefer gear/style or pure movement?",
-        "In a fantasy world, what power or weapon would you have?",
-        "What action makes others say: 'That’s legendary'?",
-        "What kind of place do you enjoy most?",
-        "Which persona fits you best?"
-    ],
-    "العربية": [
-        "وش الشي اللي تحسسك إنك قوي بدون ما أحد يمدحك؟",
-        "وش يسحبك لعالم ثاني بسرعة؟",
-        "تحب تكون معروف؟ ولا غامض بس يهابونك؟",
-        "قدام خصم... تضرب؟ تتفوق؟ تسيطر؟ تتجاهل؟",
-        "وش يثبت إنك الأقوى في التحدي؟",
-        "أقوى مشهد تتذكره في حياتك؟",
-        "في شي تعشقه وتتمنى يكون له رياضة؟",
-        "تحب اللبس والأدوات؟ ولا الحركة نفسها؟",
-        "بعالم خيالي... وش القوة أو السلاح اللي معك؟",
-        "وش تسوي ويخلي الناس يقولون عنك أسطورة؟",
-        "تحب الأماكن المفتوحة؟ طبيعية؟ مظلمة؟",
-        "أي وصف يعبر عنك؟"
-    ]
-}
-
-# ----------------------------
-# Collect Answers
-# ----------------------------
-st.title("Find Your Sport 🔍🏅")
-
-answers = []
-for q in questions[lang]:
-    a = st.text_input(q)
-    answers.append(a)
-
-if st.button("Get My Sport Recommendation 🎯"):
-    if all(ans.strip() != "" for ans in answers):
-        # Fake logic (replace with real model)
-        st.success("🎽 Your Sport: Phantom Rush")
-        st.write("A fast-paced decision sport where dominance is subtle and skill-based.")
-        st.write("🧠 Personality: Tactical Ghost")
-        st.write("🌍 Environment: VR Room")
-        st.write("🛠 Tools: Training Sword")
-    else:
-        st.warning("Please answer all questions.")
+def recommend_sport(new_answers):
+    input_str = " ".join(new_answers)
+    input_vec = vectorizer.transform([input_str])
+    similarities = cosine_similarity(input_vec, vectors).flatten()
+    best_match_idx = similarities.argmax()
+    result = df.iloc[best_match_idx]
+    return {
+        "Personality_Archetype": result["Personality_Archetype"],
+        "Identity_Archetype": result["Identity_Archetype"],
+        "Recommended_Sport_Name": result["Recommended_Sport_Name"],
+        "Sport_Description": result["Sport_Description"],
+        "Environment": result["Environment"],
+        "Tools_Needed": result["Tools_Needed"]
+    }
