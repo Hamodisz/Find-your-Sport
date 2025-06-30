@@ -1,45 +1,27 @@
+import streamlit as st
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 
-data = [
-    {
-        "Combined_Answers": "Observes quietly Avoids showing off Mental challenge Expresses with motion Prefers silence Tactical Ghost Phantom Rush A fast-paced decision sport where dominance is subtle and skill-based. VR room Training sword",
-        "Personality_Archetype": "Tactical Ghost",
-        "Identity_Archetype": "The Phantom",
-        "Recommended_Sport_Name": "Phantom Rush",
-        "Sport_Description": "A fast-paced decision sport where dominance is subtle and skill-based.",
-        "Environment": "VR room",
-        "Tools_Needed": "Training sword"
-    },
-    {
-        "Combined_Answers": "Avoids showing off Mental challenge Observes quietly Shadow Strategist Phantom Rush A fast-paced decision sport where dominance is subtle and skill-based. Dark indoor arena Sound sensor",
-        "Personality_Archetype": "Shadow Strategist",
-        "Identity_Archetype": "The Phantom",
-        "Recommended_Sport_Name": "Phantom Rush",
-        "Sport_Description": "A fast-paced decision sport where dominance is subtle and skill-based.",
-        "Environment": "Dark indoor arena",
-        "Tools_Needed": "Sound sensor"
-    },
-    {
-        "Combined_Answers": "Observes quietly Avoids showing off Tactical Ghost Urban Arena Tactical competition with indirect interaction and positioning. Dark indoor arena VR headset",
-        "Personality_Archetype": "Tactical Ghost",
-        "Identity_Archetype": "The Observer",
-        "Recommended_Sport_Name": "Urban Arena",
-        "Sport_Description": "Tactical competition with indirect interaction and positioning.",
-        "Environment": "Dark indoor arena",
-        "Tools_Needed": "VR headset"
-    }
-]
+# Title
+st.title("🏅 Find Your Sport")
+st.write("Answer the following questions to get your personalized sport recommendation.")
 
-df = pd.DataFrame(data)
-vectorizer = CountVectorizer().fit(df["Combined_Answers"])
-vectors = vectorizer.transform(df["Combined_Answers"])
+# Load data
+@st.cache_data
+def load_data():
+    df = pd.read_excel("Formatted_Sport_Identity_Data-2.xlsx")
+    df["Combined_Answers"] = df[[f"Q{i}" for i in range(1, 21)]].astype(str).agg(' '.join, axis=1)
+    return df
 
+df = load_data()
+
+# Recommendation function
 def recommend_sport(new_answers):
     input_str = " ".join(new_answers)
-    input_vec = vectorizer.transform([input_str])
-    similarities = cosine_similarity(input_vec, vectors).flatten()
+    input_vec = CountVectorizer().fit(df["Combined_Answers"]).transform([input_str])
+    base_vecs = CountVectorizer().fit_transform(df["Combined_Answers"])
+    similarities = cosine_similarity(input_vec, base_vecs).flatten()
     best_match_idx = similarities.argmax()
     result = df.iloc[best_match_idx]
     return {
@@ -50,3 +32,18 @@ def recommend_sport(new_answers):
         "Environment": result["Environment"],
         "Tools_Needed": result["Tools_Needed"]
     }
+
+# User input form
+answers = []
+for i in range(1, 21):
+    ans = st.text_input(f"Answer for Q{i}", "")
+    answers.append(ans)
+
+if st.button("🔍 Find My Sport"):
+    if all(answers):
+        result = recommend_sport(answers)
+        st.subheader("🎯 Your Recommended Sport:")
+        for key, value in result.items():
+            st.write(f"**{key}**: {value}")
+    else:
+        st.warning("Please fill in all 20 answers.")
